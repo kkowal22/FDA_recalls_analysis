@@ -7,6 +7,15 @@ The core investigation centers on a specific macro-metric: **Does the time elaps
 
 ---
 
+## Project Structural Architecture
+
+| Goal (Why) | Means (How) | Characteristics (What) | Target Data (Where) | Workflow (When) | Roles (Who) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Investigate backlogs:** Evaluate if administrative latency grows or spikes during high-volume recall years. | **Automated Pipeline:** Programmatic data ingestion, type-coercion, and structural data validation routines. | **Class I Categorization:** Focuses on the most severe recall tier involving high-risk medical threats. | **FDA Data Dashboard:** Publicly available historical datasets from June 8, 2012, to July 5, 2026. | **Post-Ingestion Gate:** Standardizes variables and executes an operational quality check before building charts. | **Data Scientist / Auditor:** Single-investigator execution handling end-to-end extraction and visualization. |
+| **Expose structural skewing:** Trace how uncollapsed item-level data artificiality distorts aggregate metrics. | **Unit-of-Analysis Correction:** De-duplicating SKU clusters down to standalone unique `Event ID` entities. | **SKU-to-Event Mapping:** Resolves many-to-one relationships where single actions map to hundreds of rows. | **Target Dataset:** Isolated itemized product spreadsheets containing repeated administrative event records. | **Prior to Aggregation:** Deduplication runs immediately before calculating annual descriptive metrics. | **Data Architect / Reviewer:** Auditing raw reporting patterns vs. true regulatory definitions. |
+
+---
+
 ## Pipeline Architecture
 
 ### Section 1 — Environment Setup
