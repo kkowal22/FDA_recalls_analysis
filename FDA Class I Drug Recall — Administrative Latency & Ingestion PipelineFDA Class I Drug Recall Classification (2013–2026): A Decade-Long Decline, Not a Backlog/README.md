@@ -1,6 +1,6 @@
 # FDA Class I Drug Recall Classification (2013–2026): A Decade-Long Decline, Not a Backlog
 
-[![Open In Colab](https://colab.research.google.com/drive/1n9mjig-bYBqVdED7i51y1unoO3Huo6us?usp=sharing)
+[Open Live Analysis in Google Colab](https://colab.research.google.com/drive/1n9mjig-bYBqVdED7i51y1unoO3Huo6us?usp=sharing)
 
 ## Project Overview
 This pipeline investigates whether the FDA's drug recall classification process changes pace over time, and whether any such change tracks high-volume recall years. It utilizes publicly available Class I drug recall records pulled from the FDA Data Dashboard [1] covering firm recall initiations from January 1, 2013, through the data pull date of July 12, 2026.
