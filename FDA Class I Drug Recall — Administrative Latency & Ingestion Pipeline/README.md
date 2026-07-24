@@ -1,9 +1,19 @@
-# FDA Class I Drug Recall Analysis (2013–2026) — Classification Latency Analysis
+# FDA Class I Drug Recall Analysis (2013–2026) — Classification Latency & Backlog Analysis
 
 ## Project Overview
-This pipeline investigates whether the FDA's drug recall classification process slows down over time or during high-volume recall years. It utilizes publicly available Class I drug recall records pulled from the FDA Data Dashboard covering operations from June 8, 2012, through July 5, 2026.
+This pipeline investigates whether the FDA's drug recall classification process is slowing down, speeding up, or holding steady over time. It uses publicly available Class I drug recall records pulled from the FDA Data Dashboard, combined across three raw exports covering January 2013 through July 12, 2026.
 
-The core investigation centers on a specific macro-metric: **Does the time elapsed between a firm initiating a recall and the FDA Center formally classifying it ($Recall\ Initiation\ Date \rightarrow Center\ Classification\ Date$) show a meaningful trend over time?** More importantly, is that trend a reflection of real regulatory delays, or simply an artifact of how the raw dataset is structurally organized?
+The core investigation centers on a specific macro-metric: **does the time elapsed between a firm initiating a recall and the FDA Center formally classifying it (Recall Initiation Date → Center Classification Date) show a meaningful trend over time, and is that trend actually driven by recall volume, or is it just calendar drift?**
+
+## Pipeline Flow
+
+```mermaid
+flowchart TD
+    A[Raw FDA recall CSVs] --> B[Clean & deduplicate]
+    B --> C[Latency & reliability flag]
+    C --> D[Annual metrics & regression]
+    D --> E[Visualizations]
+```
 
 ---
 
@@ -11,45 +21,52 @@ The core investigation centers on a specific macro-metric: **Does the time elaps
 
 | Goal (Why) | Means (How) | Characteristics (What) | Target Data (Where) | Workflow (When) | Roles (Who) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Investigate backlogs:** Evaluate if administrative latency grows or spikes during high-volume recall years. | **Automated Pipeline:** Programmatic data ingestion, type-coercion, and structural data validation routines. | **Class I Categorization:** Focuses on the most severe recall tier involving high-risk medical threats. | **FDA Data Dashboard:** Publicly available historical datasets from June 8, 2012, to July 5, 2026. | **Post-Ingestion Gate:** Standardizes variables and executes an operational quality check before building charts. | **Data Scientist / Auditor:** Single-investigator execution handling end-to-end extraction and visualization. |
-| **Expose structural skewing:** Trace how uncollapsed item-level data artificiality distorts aggregate metrics. | **Unit-of-Analysis Correction:** De-duplicating SKU clusters down to standalone unique `Event ID` entities. | **SKU-to-Event Mapping:** Resolves many-to-one relationships where single actions map to hundreds of rows. | **Target Dataset:** Isolated itemized product spreadsheets containing repeated administrative event records. | **Prior to Aggregation:** Deduplication runs immediately before calculating annual descriptive metrics. | **Data Architect / Reviewer:** Auditing raw reporting patterns vs. true regulatory definitions. |
+| **Investigate backlog trend:** Determine whether classification latency is trending up, down, or flat across the full 2013–2026 window. | **Automated pipeline:** CSV ingestion, date parsing, deduplication, and a right-censoring correction before any metric is computed. | **Class I drug recalls only:** Most severe recall tier, filtered from the combined FDA export. | **FDA Data Dashboard:** Three raw CSV extracts spanning Jan 2013 to July 12, 2026. | **Post-ingestion gate:** Latency and reliability flags are computed before annual aggregation. | **Data Scientist / Analyst:** Single-investigator, end-to-end extraction through visualization. |
+| **Test the volume-backlog relationship:** Determine whether backlog length is actually explained by concurrent recall volume, or just tracks the calendar year. | **Concurrent-volume windowing:** 45-day rolling count of open cases around each event, tested via raw correlation and a year-controlled OLS regression. | **Detrended comparison:** Both variables have year effects removed via group-mean subtraction before the relationship is visualized. | **Deduplicated event-level dataset:** One row per unique Event ID, with a computed Concurrent_Volume field. | **Final analytical stage:** Runs after annual metrics, immediately before the last visualization layer. | **Data Scientist / Analyst:** Same single-investigator scope. |
 
 ---
 
 ## Pipeline Architecture
 
 ### Section 1 — Environment Setup
-* Installs and imports `pandas`, `numpy`, and `altair`. 
-* Configures Altair's JSON data transformer (available and commented out by default) to handle memory allocation for datasets exceeding 5,000 rows.
+* Installs and imports `pandas`, `numpy`, `altair`, `statsmodels`, and `vl-convert-python`.
+* Defines a shared Lean Six Sigma color palette (blue, grey, amber, red, dark) so color carries the same meaning in every chart in the notebook: blue for neutral process data, grey for volume/context, amber for a warning zone, red reserved strictly for confirmed threshold breaches.
 
-### Section 2 — Data Loading
-* Reads the raw CSV input and outputs the total record count prior to execution.
-* Establishes a concrete baseline for the downstream data quality audit trail.
+### Section 2 — Data Loading & Deduplication
+* Reads three raw CSV exports (Jan 2013–Dec 2018, Jan 2019–Dec 2023, Jan 2024–July 12 2026), concatenates them, and exports the combined raw file.
+* Parses `Recall Initiation Date` and `Center Classification Date`, dropping anything initiated before January 1, 2013.
+* Deduplicates on `Event ID`, since the raw export is logged at the item level. A single recall action can generate multiple rows if it covers several pack sizes or lots. This collapses 1,675 raw rows down to 603 unique events. This is the same way FDA reports their results in the offical dashboards. 
 
-### Section 3 — Date Standardization
-* Converts `Recall Initiation Date` and `Center Classification Date` strings into proper datetime objects using `pd.to_datetime(..., errors='coerce')`. 
-* Preserves raw, pre-conversion copies of both columns to cleanly isolate missing values from corrupted, unparseable text strings.
+### Section 3 — Latency Metric & Right-Censoring Correction
+* Computes `Latency_Days` as the day delta between `Center Classification Date` and `Recall Initiation Date`.
+* Computes `Report_Lag` (Report Date minus Recall Initiation Date) and derives a reliability cutoff from its 90th percentile.
+* Flags each event `Reliable` if it's old enough to have plausibly resolved by the data pull date (July 12, 2026). Recent, still-open events are excluded from every latency-derived metric so they don't skew results toward artificially fast outcomes. Total recall volume isn't affected by this correction, since a recall is countable the moment it's initiated.
 
-### Section 4 — Data Quality Audit & Quarantine Gate
-Cross-references the raw and converted date columns to classify every row into one of three structural states per field:
-1. **Originally Blank:** No data was ever entered.
-2. **Unparseable Text:** A value was entered but could not be parsed as a valid date due to a typo or formatting error.
-3. **Clean:** Parsed successfully.
+### Section 4 — Annual Metrics
+* `total_recall_volume`: unique event count per year, computed on the full dataset.
+* `median_latency`, `p90_latency`, `pct_over_60`, `pct_over_90`: computed only on the `Reliable` subset, since all four are latency-derived and would otherwise be biased by unresolved recent cases.
 
-* **Strict Operational Gate:** Any record containing an anomaly in either date field is immediately isolated into a quarantine DataFrame. 
-* If quarantined rows exist, the script prints an explicit diagnostic sample to the console and halts further execution via a `raise ValueError`. This prevents downstream visualization models from running silently on corrupted data.
-* Row deduplication is intentionally bypassed at this stage to preserve the true row-level scope of data quality profiles.
+### Section 5 — Queue Depth Time Series
+* Builds month-end snapshots counting every event that was open, initiated but not yet classified, at that point in time.
+* Gives a rolling view of caseload across the full period, rather than relying on year-end summaries alone.
 
-### Section 5 — Latency Metric, Deduplication, and Trend Visualization
-* **Metric Creation:** Computes `Latency_Days` as the explicit day delta between classification and initiation events, and extracts the calendar `Year` for annual grouping.
-* **Unit-of-Analysis Correction:** The raw source data is logged at the SKU/item level, meaning a single recall action can generate hundreds of near-identical rows if it covers various pack sizes or dosages sharing a single `Event ID`. Computing a median directly on raw rows allows single massive events to dominate an entire year's metric. (Verified in this dataset where an uncorrected 465-row event inflated annual median latency by nearly 7x). The pipeline corrects for this by collapsing the data to one row per unique `Event ID` via `df.drop_duplicates(subset=['Event ID'])`.
-* **Annual Aggregation:** Groups deduplicated data by year to calculate total annual unique recall events (volume) and the median processing latency. A median metric is used over the mean to eliminate skewing from extreme administrative outlier delays.
-* **Visualization:** Renders an interactive Altair chart layering annual recall volume (vertical bars) against median processing latency (trend line) using dual independent Y-axes, complete with an interactive horizontal brush selector.
+### Section 6 — Volume-Backlog Relationship Test
+* Computes `Concurrent_Volume` via a 45-day rolling window around each event's initiation date, using `searchsorted` for O(n log n) performance.
+* Runs a raw correlation and an OLS regression of `Latency_Days` on `Concurrent_Volume`, controlling for `Year` fixed effects.
+* Detrends both variables via group-mean subtraction so the relationship can be visualized with calendar-year drift removed.
+
+### Section 7 — Visualization
+* Median vs. 90th percentile latency by year (line chart).
+* Share of recalls exceeding 60- and 90-day thresholds by year (bar chart).
+* Monthly queue depth from 2013 through 2026 (area chart).
+* Annual recall volume paired with the latency trend line.
+* Concurrent volume vs. detrended latency with a regression overlay (scatter).
 
 ---
 
 ## Data Source & Known Limitations
 
-* **Domain Bounds:** Data is sourced from the FDA Data Dashboard, filtered strictly to `Product Type = Drugs` and `Classification = Class I`. Findings reflect drug-center behavior specifically and do not model FDA-wide recall processing for foods, medical devices, or biologics.
-* **Temporal Truncation:** The dataset's June 8, 2012 start boundary is a fixed limitation of the underlying FDA system architectures (recalls are only displayed once classified on or after that date) and is not an artifact of local pipeline extraction.
-* **Metric Definition:** `Latency_Days` measures administrative, internal paperwork processing time between a firm's disclosure and formal center classification. It does not map product removal speed from physical retail shelves or public communication timing.
+* **Domain bounds:** Data is sourced from the FDA Data Dashboard, filtered to Class I drug recalls only, covering January 2013 through the July 12, 2026 pull date. Findings reflect drug-center behavior specifically and do not model recall processing for foods, medical devices, or biologics.
+* **Right-censoring:** Rather than ignoring the bias that recent, unresolved recalls introduce into latency metrics, this is explicitly corrected for via the `Reliable` flag and a data-driven cutoff based on report-lag distribution.
+* **Metric definition:** `Latency_Days` measures internal administrative processing time between a firm's recall initiation and formal Center classification. It does not measure product removal speed from retail shelves or public communication timing.
+* **Regression result:** The concurrent-volume regression did not find a statistically significant relationship between caseload and latency once year effects were controlled for (coefficient p = 0.74, 95% CI spanning zero). The backlog trend visible in the charts appears to track calendar year more than concurrent volume itself.
