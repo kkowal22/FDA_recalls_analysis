@@ -1,4 +1,4 @@
-# FDA Class I Drug Recall — Classification Latency Analysis
+# FDA Class I Drug Recall Analysis (2013–2026) — Classification Latency Analysis
 
 ## Project Overview
 This pipeline investigates whether the FDA's drug recall classification process slows down over time or during high-volume recall years. It utilizes publicly available Class I drug recall records pulled from the FDA Data Dashboard covering operations from June 8, 2012, through July 5, 2026.
