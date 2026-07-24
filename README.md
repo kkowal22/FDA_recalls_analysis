@@ -5,7 +5,7 @@ Each analysis lives in its own subfolder and is self-contained:
 ## Analyses
 | Folder | Question | Status |
 |---|---|---|
-| [`FDA Class I Drug Recall Classification (2013–2026): A Decade-Long Decline, Not a Backlog`](./FDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog) | Is FDA classification latency (Recall Initiation → Center Classification) trending over time, and is any trend explained by recall-volume backlog? | ✅ Complete |
+| [`FDA Class I Drug Recall Classification (2013–2026): A Decade-Long Decline, Not a Backlog`]([./FDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog](https://github.com/kkowal22/FDA_recalls_analysis/tree/main/FDA%20Class%20I%20Drug%20Recall%20%E2%80%94%20Administrative%20Latency%20%26%20Ingestion%20PipelineFDA%20Class%20I%20Drug%20Recall%20Classification%20(2013%E2%80%932026)%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog)) | Is FDA classification latency (Recall Initiation → Center Classification) trending over time, and is any trend explained by recall-volume backlog? | ✅ Complete |
 | *More coming soon* | — | 🔜 Planned |
 ## Data Source
 All analyses draw from the [FDA Data Dashboard's advanced search portal](https://www.accessdata.fda.gov/scripts/ires/index.cfm#tabNav_advancedSearch), covering recalls from June 8, 2012 onward. Individual analyses may restrict this window further — check each subfolder's README for its exact date range and any filtering applied.
