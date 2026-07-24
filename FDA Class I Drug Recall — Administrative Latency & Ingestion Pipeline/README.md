@@ -1,9 +1,12 @@
-# FDA Class I Drug Recall Analysis (2013–2026) — Classification Latency Analysis
+# FDA Class I Drug Recall Classification (2013–2026): A Decade-Long Decline, Not a Backlog
 
 ## Project Overview
-This pipeline investigates whether the FDA's drug recall classification process slows down over time or during high-volume recall years. It utilizes publicly available Class I drug recall records pulled from the FDA Data Dashboard [1] covering firm recall initiations from January 1, 2013, through the data pull date of July 12, 2026.
+This pipeline investigates whether the FDA's drug recall classification process changes pace over time, and whether any such change tracks high-volume recall years. It utilizes publicly available Class I drug recall records pulled from the FDA Data Dashboard [1] covering firm recall initiations from January 1, 2013, through the data pull date of July 12, 2026.
 
 The core investigation centers on a specific macro-metric: **Does the time elapsed between a firm initiating a recall and the FDA Center formally classifying it ($Recall\ Initiation\ Date \rightarrow Center\ Classification\ Date$) show a meaningful trend over time?** More importantly, is that trend a reflection of real regulatory delays/backlog pressure, or simply an artifact of how the raw dataset is structurally organized?
+
+## Findings
+Classification latency fell roughly 4x between 2013 and 2018, from a median of 141 days down to 35, then held flat through 2025. Concurrent recall volume doesn't explain that drop or the plateau that followed it (coef = 0.325 days/recall, p = 0.745). The change tracks *calendar year*, not caseload, which reads as a step-change from something that happened per year rather than a queueing effect.
 
 ---
 
@@ -76,11 +79,11 @@ The core investigation centers on a specific macro-metric: **Does the time elaps
 
 **Is this real, or an artifact of the data structure / recall volume?**
 
-* It is not a deduplication artifact — all figures above are computed on the 603 unique events, not the 1,675 raw item-rows.
-* It is not explained by caseload/backlog pressure. The raw correlation between an individual event's latency and its concurrent 45-day recall volume is weak (r = 0.13). Once year fixed effects are controlled for, the concurrent-volume coefficient is 0.325 days per additional concurrent recall, p = 0.745, 95% CI [−1.64, 2.29] — statistically indistinguishable from zero.
-* In plain terms: **within any given year, how many other recalls were open at the same time did not predict how long a specific event took to classify.** The improvement is not a queueing phenomenon where lighter caseloads freed up faster processing — it presents as a step-change tied to something that happened per-year (process, staffing, policy, definitional, or system changes), not to how busy the Center was at any given moment.
+* It is not a deduplication artifact. All figures above are computed on the 603 unique events, not the 1,675 raw item-rows.
+* It is not explained by caseload/backlog pressure. The raw correlation between an individual event's latency and its concurrent 45-day recall volume is weak (r = 0.13). Once year fixed effects are controlled for, the concurrent-volume coefficient is 0.325 days per additional concurrent recall, p = 0.745, 95% CI [−1.64, 2.29]. It is statistically indistinguishable from zero.
+* In plain terms: **within any given year, how many other recalls were open at the same time did not predict how long a specific event took to classify.** The improvement is not a queueing phenomenon where lighter caseloads freed up faster processing. It presents as a step-change tied to something that happened per-year (process, staffing, policy, definitional, or system changes), not to how busy the Center was at any given moment.
 
-**Net answer to the driving question:** the FDA's Class I drug-recall classification latency did not slow down over 2013–2026 — it dropped substantially, with almost all of the improvement concentrated in 2013–2018, followed by a stable low-latency plateau through 2025. The data rules out concurrent recall volume as the explanation for either the drop or the plateau. It does not identify what did cause it, since staffing, policy, and procedural changes are outside this dataset's scope (see Causal Scope above).
+**Net answer to the driving question:** the FDA's Class I drug-recall classification latency did not slow down over 2013–2026. It dropped substantially, with almost all of the improvement concentrated in 2013–2018, followed by a stable low-latency plateau through 2025. The data rules out concurrent recall volume as the explanation for either the drop or the plateau. It does not identify what did cause it, since staffing, policy, and procedural changes are outside this dataset's scope (see Causal Scope above).
 
 ---
 
