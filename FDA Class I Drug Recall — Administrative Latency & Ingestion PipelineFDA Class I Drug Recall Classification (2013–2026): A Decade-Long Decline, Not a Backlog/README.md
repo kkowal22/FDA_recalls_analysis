@@ -56,6 +56,16 @@ Classification latency fell roughly 4x between 2013 and 2018, from a median of 1
 ### Section 8 — Visualization
 * Renders interactive Altair charts, all using the shared Lean Six Sigma palette: median vs. P90 latency by year (line), the share of recalls exceeding 60/90-day thresholds by year (bar), the monthly queue depth (area), the annual volume paired with the latency trend (stacked bar + line), and the detrended concurrent-volume-vs-latency scatter with a fitted regression line.
 
+![Median vs P90 latency by year](https://raw.githubusercontent.com/kkowal22/FDA_recalls_analysis/main/FDA%20Class%20I%20Drug%20Recall%20%E2%80%94%20Administrative%20Latency%20%26%20Ingestion%20PipelineFDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog/Charts/Median%20vs%20P90%20Latency%20by%20Year.png)
+
+![Share of recalls exceeding latency thresholds by year](https://raw.githubusercontent.com/kkowal22/FDA_recalls_analysis/main/FDA%20Class%20I%20Drug%20Recall%20%E2%80%94%20Administrative%20Latency%20%26%20Ingestion%20PipelineFDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog/Charts/Share%20of%20Recalls%20Exceeding%20Latency%20Threshold%2C%20by%20Year.png)
+
+![Monthly queue depth](https://raw.githubusercontent.com/kkowal22/FDA_recalls_analysis/main/FDA%20Class%20I%20Drug%20Recall%20%E2%80%94%20Administrative%20Latency%20%26%20Ingestion%20PipelineFDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog/Charts/Monthly%20Queue%20Depth.png)
+
+![Annual volume paired with latency trend](https://raw.githubusercontent.com/kkowal22/FDA_recalls_analysis/main/FDA%20Class%20I%20Drug%20Recall%20%E2%80%94%20Administrative%20Latency%20%26%20Ingestion%20PipelineFDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog/Charts/Year-%20level%20volume.png)
+
+![Detrended concurrent volume vs latency, with regression fit](https://raw.githubusercontent.com/kkowal22/FDA_recalls_analysis/main/FDA%20Class%20I%20Drug%20Recall%20%E2%80%94%20Administrative%20Latency%20%26%20Ingestion%20PipelineFDA%20Class%20I%20Drug%20Recall%20Classification%20%282013%E2%80%932026%29%3A%20A%20Decade-Long%20Decline%2C%20Not%20a%20Backlog/Charts/Concurrent%20Volume%20vs%20Detrended%20Latency.png)
+
 ---
 
 ## Data Source & Known Limitations
